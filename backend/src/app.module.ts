@@ -6,6 +6,8 @@ import { HealthModule } from './health/health.module';
 import { BullModule } from '@nestjs/bull';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DocumentsModule } from './documents/documents.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 import { join } from 'path';
 
 @Module({
@@ -15,13 +17,14 @@ import { join } from 'path';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
+      context: ({ req }) => ({ req }),
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DATABASE_HOST || 'localhost',
-      port: parseInt(process.env.DATABASE_PORT || '5432'),
-      username: process.env.DATABASE_USERNAME || 'admin',
-      password: process.env.DATABASE_PASSWORD || 'admin_password',
+      port: parseInt(process.env.DATABASE_PORT || '5433'),
+      username: process.env.DATABASE_USERNAME || 'postgres',
+      password: process.env.DATABASE_PASSWORD || 'postgres',
       database: process.env.DATABASE_NAME || 'document_management',
       entities: [join(__dirname, '**', '*.entity.{ts,js}')],
       synchronize: true, // Set to false in production
@@ -33,6 +36,8 @@ import { join } from 'path';
       },
     }),
     HealthModule,
+    AuthModule,
+    UsersModule,
     DocumentsModule,
   ],
 })

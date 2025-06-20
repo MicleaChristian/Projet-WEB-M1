@@ -1,0 +1,79 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthResponse {
+  access_token: String!
+  user: User!
+}
+
+input CreateDocumentInput {
+  content: String!
+  fileName: String
+  filePath: String
+  fileSize: Float
+  mimeType: String
+  title: String!
+  userId: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Document {
+  content: String!
+  createdAt: DateTime!
+  fileName: String
+  filePath: String
+  fileSize: Float
+  id: ID!
+  mimeType: String
+  title: String!
+  updatedAt: DateTime!
+  userId: ID!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  createDocument(createDocumentInput: CreateDocumentInput!): Document!
+  login(loginInput: LoginInput!): AuthResponse!
+  register(registerInput: RegisterInput!): AuthResponse!
+  removeDocument(id: ID!): Document!
+  updateDocument(updateDocumentInput: UpdateDocumentInput!): Document!
+}
+
+type Query {
+  document(id: ID!): Document!
+  documents: [Document!]!
+  documentsByUser: [Document!]!
+  me: User!
+}
+
+input RegisterInput {
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String!
+}
+
+input UpdateDocumentInput {
+  content: String
+  id: ID!
+  title: String
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  firstName: String!
+  id: ID!
+  lastName: String!
+  role: String!
+  updatedAt: DateTime!
+}

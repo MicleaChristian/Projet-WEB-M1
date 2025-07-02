@@ -22,7 +22,7 @@ describe('DocumentsService', () => {
     fileSize: undefined,
     mimeType: undefined,
     userId: 'user1',
-    user: null as any, // Mock user object
+    user: undefined,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -58,6 +58,11 @@ describe('DocumentsService', () => {
     service = module.get<DocumentsService>(DocumentsService);
     repository = module.get<Repository<Document>>(getRepositoryToken(Document));
     queue = module.get<Queue>(getQueueToken('document-processing'));
+
+    // Reset mocks and verify injection
+    jest.clearAllMocks();
+    expect(repository).toBeDefined();
+    expect(queue).toBeDefined();
   });
 
   it('should be defined', () => {

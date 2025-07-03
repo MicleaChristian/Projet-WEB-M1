@@ -28,6 +28,9 @@ import { join } from "path";
       database: process.env.DATABASE_NAME || "document_management",
       entities: [join(__dirname, "**", "*.entity.{ts,js}")],
       synchronize: true, // Set to false in production
+      ssl: {
+        rejectUnauthorized: false,
+      },
     }),
     BullModule.forRoot({
       redis: {

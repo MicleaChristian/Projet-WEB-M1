@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { PrismaService } from '../prisma/prisma.service';
@@ -48,22 +48,35 @@ export class DocumentsService {
     });
   }
 
-  findOne(id: string, userId?: string) {
+  async findOne(id: string, userId?: string) {
     const whereCondition: { id: string; userId?: string } = { id };
     if (userId) {
       whereCondition.userId = userId;
     }
-    return this.prisma.document.findUnique({ where: whereCondition });
+    
+    const document = await this.prisma.document.findUnique({ where: whereCondition });
+    
+    if (!document) {
+      throw new NotFoundException('Document not found');
+    }
+    
+    // If userId is provided, ensure user owns the document
+    if (userId && document.userId !== userId) {
+      throw new ForbiddenException('You do not have permission to access this document');
+    }
+    
+    return document;
   }
 
-  async update(id: string, updateDocumentInput: UpdateDocumentInput) {
-    const existingDocument = await this.findOne(id);
-    if (!existingDocument) {
-      throw new Error('Document not found');
-    }
-
+  async update(id: string, updateDocumentInput: UpdateDocumentInput, userId: string) {
+    // First verify the document exists and user owns it
+    const existingDocument = await this.findOne(id, userId);
+    
     const updatedDocument = await this.prisma.document.update({
-      where: { id },
+      where: { 
+        id,
+        userId // Ensure only the owner can update
+      },
       data: updateDocumentInput,
     });
     
@@ -79,14 +92,15 @@ export class DocumentsService {
     return updatedDocument;
   }
 
-  async remove(id: string) {
-    const document = await this.findOne(id);
-    if (!document) {
-      throw new Error('Document not found');
-    }
+  async remove(id: string, userId: string) {
+    // First verify the document exists and user owns it
+    const document = await this.findOne(id, userId);
     
     const deletedDocument = await this.prisma.document.delete({
-      where: { id },
+      where: { 
+        id,
+        userId // Ensure only the owner can delete
+      },
     });
     
     // Add job to queue for document deletion processing

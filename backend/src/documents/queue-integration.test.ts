@@ -144,7 +144,7 @@ describe('Queue Integration Tests (Producer + Consumer)', () => {
         id: document.id,
         title: 'Updated Title',
         content: 'Updated Content',
-      });
+      }, 'update-test-user');
 
       // Wait for the job to be processed
       await new Promise(resolve => setTimeout(resolve, 200));
@@ -178,7 +178,7 @@ describe('Queue Integration Tests (Producer + Consumer)', () => {
       const processorSpy = jest.spyOn(documentProcessor, 'handleDocumentDeleted');
 
       // Act
-      await documentsService.remove(document.id);
+      await documentsService.remove(document.id, 'delete-test-user');
 
       // Wait for the job to be processed
       await new Promise(resolve => setTimeout(resolve, 200));

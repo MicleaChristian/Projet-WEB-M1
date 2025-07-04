@@ -28,8 +28,8 @@ let DocumentsResolver = class DocumentsResolver {
     async createDocument(createDocumentInput, user) {
         return this.documentsService.create(createDocumentInput, user.id);
     }
-    findAll() {
-        return this.documentsService.findAll();
+    findAll(user) {
+        return this.documentsService.findByUser(user.id);
     }
     findByUser(user) {
         return this.documentsService.findByUser(user.id);
@@ -38,10 +38,10 @@ let DocumentsResolver = class DocumentsResolver {
         return this.documentsService.findOne(id, user.id);
     }
     updateDocument(updateDocumentInput, user) {
-        return this.documentsService.update(updateDocumentInput.id, updateDocumentInput);
+        return this.documentsService.update(updateDocumentInput.id, updateDocumentInput, user.id);
     }
     removeDocument(id, user) {
-        return this.documentsService.remove(id);
+        return this.documentsService.remove(id, user.id);
     }
 };
 exports.DocumentsResolver = DocumentsResolver;
@@ -57,8 +57,9 @@ __decorate([
 __decorate([
     (0, graphql_1.Query)(() => [document_entity_1.Document], { name: 'documents' }),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], DocumentsResolver.prototype, "findAll", null);
 __decorate([

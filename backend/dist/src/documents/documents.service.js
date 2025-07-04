@@ -48,20 +48,27 @@ let DocumentsService = class DocumentsService {
             orderBy: { createdAt: 'desc' }
         });
     }
-    findOne(id, userId) {
+    async findOne(id, userId) {
         const whereCondition = { id };
         if (userId) {
             whereCondition.userId = userId;
         }
-        return this.prisma.document.findUnique({ where: whereCondition });
-    }
-    async update(id, updateDocumentInput) {
-        const existingDocument = await this.findOne(id);
-        if (!existingDocument) {
-            throw new Error('Document not found');
+        const document = await this.prisma.document.findUnique({ where: whereCondition });
+        if (!document) {
+            throw new common_1.NotFoundException('Document not found');
         }
+        if (userId && document.userId !== userId) {
+            throw new common_1.ForbiddenException('You do not have permission to access this document');
+        }
+        return document;
+    }
+    async update(id, updateDocumentInput, userId) {
+        const existingDocument = await this.findOne(id, userId);
         const updatedDocument = await this.prisma.document.update({
-            where: { id },
+            where: {
+                id,
+                userId
+            },
             data: updateDocumentInput,
         });
         await this.documentQueue.add('document-updated', {
@@ -73,13 +80,13 @@ let DocumentsService = class DocumentsService {
         });
         return updatedDocument;
     }
-    async remove(id) {
-        const document = await this.findOne(id);
-        if (!document) {
-            throw new Error('Document not found');
-        }
+    async remove(id, userId) {
+        const document = await this.findOne(id, userId);
         const deletedDocument = await this.prisma.document.delete({
-            where: { id },
+            where: {
+                id,
+                userId
+            },
         });
         await this.documentQueue.add('document-deleted', {
             documentId: id,

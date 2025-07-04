@@ -17,7 +17,7 @@ export declare class DocumentsResolver {
         createdAt: Date;
         updatedAt: Date;
     }>;
-    findAll(): import(".prisma/client").Prisma.PrismaPromise<{
+    findAll(user: User): Promise<{
         title: string;
         content: string;
         fileName: string | null;
@@ -41,7 +41,7 @@ export declare class DocumentsResolver {
         createdAt: Date;
         updatedAt: Date;
     }[]>;
-    findOne(id: string, user: User): import(".prisma/client").Prisma.Prisma__DocumentClient<{
+    findOne(id: string, user: User): Promise<{
         title: string;
         content: string;
         fileName: string | null;
@@ -52,7 +52,7 @@ export declare class DocumentsResolver {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-    }, null, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
+    }>;
     updateDocument(updateDocumentInput: UpdateDocumentInput, user: User): Promise<{
         title: string;
         content: string;

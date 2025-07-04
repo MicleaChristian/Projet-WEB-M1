@@ -23,8 +23,9 @@ export class DocumentsResolver {
 
   @Query(() => [Document], { name: 'documents' })
   @UseGuards(JwtAuthGuard)
-  findAll() {
-    return this.documentsService.findAll();
+  findAll(@CurrentUser() user: User) {
+    // For security, always filter by user - no one should see all documents
+    return this.documentsService.findByUser(user.id);
   }
 
   @Query(() => [Document], { name: 'documentsByUser' })
@@ -48,7 +49,7 @@ export class DocumentsResolver {
     @Args('updateDocumentInput') updateDocumentInput: UpdateDocumentInput,
     @CurrentUser() user: User,
   ) {
-    return this.documentsService.update(updateDocumentInput.id, updateDocumentInput);
+    return this.documentsService.update(updateDocumentInput.id, updateDocumentInput, user.id);
   }
 
   @Mutation(() => Document)
@@ -57,6 +58,6 @@ export class DocumentsResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ) {
-    return this.documentsService.remove(id);
+    return this.documentsService.remove(id, user.id);
   }
 } 

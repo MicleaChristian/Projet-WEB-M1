@@ -134,12 +134,10 @@ describe('DocumentsService', () => {
       });
     });
 
-    it('should return null if document not found', async () => {
+    it('should throw NotFoundException if document not found', async () => {
       mockPrismaService.document.findUnique.mockResolvedValue(null);
 
-      const result = await service.findOne('nonexistent');
-
-      expect(result).toBeNull();
+      await expect(service.findOne('nonexistent')).rejects.toThrow('Document not found');
     });
   });
 
@@ -155,14 +153,14 @@ describe('DocumentsService', () => {
       mockPrismaService.document.update.mockResolvedValue(updatedDocument);
       mockQueue.add.mockResolvedValue({});
 
-      const result = await service.update('1', updateDocumentInput);
+      const result = await service.update('1', updateDocumentInput, 'user1');
 
       expect(result).toEqual(updatedDocument);
       expect(mockPrismaService.document.findUnique).toHaveBeenCalledWith({ 
-        where: { id: '1' } 
+        where: { id: '1', userId: 'user1' } 
       });
       expect(mockPrismaService.document.update).toHaveBeenCalledWith({
-        where: { id: '1' },
+        where: { id: '1', userId: 'user1' },
         data: { id: '1', title: 'Updated Document' },
       });
       expect(mockQueue.add).toHaveBeenCalledWith('document-updated', {
@@ -177,7 +175,7 @@ describe('DocumentsService', () => {
     it('should throw error if document not found', async () => {
       mockPrismaService.document.findUnique.mockResolvedValue(null);
 
-      await expect(service.update('nonexistent', { id: 'nonexistent' }))
+      await expect(service.update('nonexistent', { id: 'nonexistent' }, 'user1'))
         .rejects.toThrow('Document not found');
     });
   });
@@ -188,11 +186,11 @@ describe('DocumentsService', () => {
       mockPrismaService.document.delete.mockResolvedValue(mockDocument);
       mockQueue.add.mockResolvedValue({});
 
-      const result = await service.remove('1');
+      const result = await service.remove('1', 'user1');
 
       expect(result).toEqual(mockDocument);
       expect(mockPrismaService.document.delete).toHaveBeenCalledWith({
-        where: { id: '1' }
+        where: { id: '1', userId: 'user1' }
       });
       expect(mockQueue.add).toHaveBeenCalledWith('document-deleted', {
         documentId: '1',
@@ -205,7 +203,7 @@ describe('DocumentsService', () => {
     it('should throw error if document not found', async () => {
       mockPrismaService.document.findUnique.mockResolvedValue(null);
 
-      await expect(service.remove('nonexistent'))
+      await expect(service.remove('nonexistent', 'user1'))
         .rejects.toThrow('Document not found');
     });
   });

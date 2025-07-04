@@ -42,19 +42,7 @@ export declare class DocumentsService {
         createdAt: Date;
         updatedAt: Date;
     }[]>;
-    findOne(id: string, userId?: string): import(".prisma/client").Prisma.Prisma__DocumentClient<{
-        title: string;
-        content: string;
-        fileName: string | null;
-        filePath: string | null;
-        fileSize: number | null;
-        mimeType: string | null;
-        userId: string;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-    }, null, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
-    update(id: string, updateDocumentInput: UpdateDocumentInput): Promise<{
+    findOne(id: string, userId?: string): Promise<{
         title: string;
         content: string;
         fileName: string | null;
@@ -66,7 +54,19 @@ export declare class DocumentsService {
         createdAt: Date;
         updatedAt: Date;
     }>;
-    remove(id: string): Promise<{
+    update(id: string, updateDocumentInput: UpdateDocumentInput, userId: string): Promise<{
+        title: string;
+        content: string;
+        fileName: string | null;
+        filePath: string | null;
+        fileSize: number | null;
+        mimeType: string | null;
+        userId: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    remove(id: string, userId: string): Promise<{
         title: string;
         content: string;
         fileName: string | null;

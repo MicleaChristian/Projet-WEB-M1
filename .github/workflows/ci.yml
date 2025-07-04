@@ -61,11 +61,11 @@ jobs:
       working-directory: ./backend
       run: npm run test:cov
       env:
-        DATABASE_HOST: dpg-d1j7uh7diees73cou1l0-a.oregon-postgres.render.com
+        DATABASE_HOST: localhost
         DATABASE_PORT: 5432
-        DATABASE_USERNAME: admin
-        DATABASE_PASSWORD: b0OJ8wQRt2zpAWVsSWFcrZZgSOwZflWC
-        DATABASE_NAME: document_management_g47f
+        DATABASE_USERNAME: postgres
+        DATABASE_PASSWORD: postgres
+        DATABASE_NAME: document_management_test
         REDIS_HOST: localhost
         REDIS_PORT: 6379
         JWT_SECRET: test-secret-key
@@ -74,21 +74,22 @@ jobs:
       working-directory: ./backend
       run: npm run test:e2e
       env:
-        DATABASE_HOST: dpg-d1j7uh7diees73cou1l0-a.oregon-postgres.render.com
+        DATABASE_HOST: localhost
         DATABASE_PORT: 5432
-        DATABASE_USERNAME: admin
-        DATABASE_PASSWORD: b0OJ8wQRt2zpAWVsSWFcrZZgSOwZflWC
-        DATABASE_NAME: document_management_g47f
+        DATABASE_USERNAME: postgres
+        DATABASE_PASSWORD: postgres
+        DATABASE_NAME: document_management_test
         REDIS_HOST: localhost
         REDIS_PORT: 6379
         JWT_SECRET: test-secret-key
 
     - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         directory: ./backend/coverage
         flags: backend
         name: backend-coverage
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   build:
     name: Build Application
@@ -115,7 +116,7 @@ jobs:
       run: npm run build
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-files
         path: backend/dist/
@@ -174,11 +175,11 @@ jobs:
     - name: Test Docker image
       run: |
         docker run --rm --name test-container -d \
-          -e DATABASE_HOST=dpg-d1j7uh7diees73cou1l0-a.oregon-postgres.render.com \
+          -e DATABASE_HOST=localhost \
           -e DATABASE_PORT=5432 \
-          -e DATABASE_USERNAME=admin \
-          -e DATABASE_PASSWORD=b0OJ8wQRt2zpAWVsSWFcrZZgSOwZflWC \
-          -e DATABASE_NAME=document_management_g47f \
+          -e DATABASE_USERNAME=postgres \
+          -e DATABASE_PASSWORD=postgres \
+          -e DATABASE_NAME=document_management_test \
           -e REDIS_HOST=host.docker.internal \
           -e REDIS_PORT=6379 \
           -p 4000:4000 \

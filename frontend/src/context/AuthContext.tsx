@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { client } from '../apollo/client';
 
 interface User {
   id: string;
@@ -43,6 +44,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = (newToken: string, newUser: User) => {
+    // Clear any existing cache before logging in new user
+    client.clearStore();
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('token', newToken);
@@ -54,6 +57,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    // Clear Apollo Client cache to remove any cached data from the previous user
+    client.clearStore();
   };
 
   const value = {

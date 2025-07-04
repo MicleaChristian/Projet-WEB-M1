@@ -61,7 +61,17 @@ const Dashboard: React.FC = () => {
 
   const { data, loading, refetch } = useQuery(GET_DOCUMENTS_BY_USER_QUERY, {
     errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network',
+    // Skip the query if no user is logged in
+    skip: !user?.id,
   });
+
+  // Refetch documents when user changes
+  React.useEffect(() => {
+    if (user?.id) {
+      refetch();
+    }
+  }, [user?.id, refetch]);
 
   const [createDocument, { loading: creating }] = useMutation(CREATE_DOCUMENT_MUTATION, {
     onCompleted: () => {

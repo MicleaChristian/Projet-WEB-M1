@@ -1,0 +1,114 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  call-tests:
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+
+  backend:
+    needs: call-tests
+    runs-on: ubuntu-latest
+    environment: Pointsur
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      REDIS_URL: ${{ secrets.REDIS_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      PORT: ${{ secrets.PORT }}
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps & run build
+        run: |
+          npm ci
+          npm run build --if-present
+
+      - name: Build Docker image
+        run: docker build -t pointsur-backend .
+
+      - name: Prisma migrate status
+        run: docker run --rm -e DATABASE_URL="$DATABASE_URL" pointsur-backend npx prisma migrate status
+
+      - name: Log in to Docker Hub
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push image to Docker Hub
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        run: |
+          docker tag pointsur-backend ${{ secrets.DOCKER_USERNAME }}/pointsur-backend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/pointsur-backend:latest
+
+      - name: Trigger Render backend deploy
+        env:
+          RENDER_BACKEND_HOOK: ${{ secrets.RENDER_BACKEND_HOOK }}
+        if: ${{ env.RENDER_BACKEND_HOOK != '' }}
+        run: curl -fsSL -X POST "$RENDER_BACKEND_HOOK"
+
+  frontend:
+    needs: call-tests
+    runs-on: ubuntu-latest
+    environment: Pointsur
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Build Docker image
+        run: docker build -t pointsur-frontend .
+
+      - name: Log in to Docker Hub
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push image to Docker Hub
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        run: |
+          docker tag pointsur-frontend ${{ secrets.DOCKER_USERNAME }}/pointsur-frontend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/pointsur-frontend:latest
+
+      - name: Trigger Render frontend deploy
+        env:
+          RENDER_FRONTEND_HOOK: ${{ secrets.RENDER_FRONTEND_HOOK }}
+        if: ${{ env.RENDER_FRONTEND_HOOK != '' }}
+        run: curl -fsSL -X POST "$RENDER_FRONTEND_HOOK"

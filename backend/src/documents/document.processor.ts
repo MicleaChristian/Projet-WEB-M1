@@ -7,7 +7,7 @@ interface DocumentJobData {
   action: 'CREATE' | 'UPDATE' | 'DELETE';
   userId: string;
   timestamp: Date;
-  changes?: any;
+  changes?: Record<string, unknown>;
 }
 
 @Processor('document-processing')
@@ -16,7 +16,7 @@ export class DocumentProcessor {
 
   @Process('document-created')
   async handleDocumentCreated(job: Job<DocumentJobData>) {
-    const { documentId, userId, timestamp } = job.data;
+    const { documentId, userId } = job.data;
     
     this.logger.log(`Processing document creation: ${documentId} by user ${userId}`);
     
@@ -34,7 +34,7 @@ export class DocumentProcessor {
 
   @Process('document-updated')
   async handleDocumentUpdated(job: Job<DocumentJobData>) {
-    const { documentId, userId, changes, timestamp } = job.data;
+    const { documentId, userId } = job.data;
     
     this.logger.log(`Processing document update: ${documentId} by user ${userId}`);
     
@@ -48,7 +48,7 @@ export class DocumentProcessor {
 
   @Process('document-deleted')
   async handleDocumentDeleted(job: Job<DocumentJobData>) {
-    const { documentId, userId, timestamp } = job.data;
+    const { documentId, userId } = job.data;
     
     this.logger.log(`Processing document deletion: ${documentId} by user ${userId}`);
     

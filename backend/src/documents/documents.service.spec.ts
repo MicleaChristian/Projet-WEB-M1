@@ -1,17 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { getQueueToken } from '@nestjs/bull';
-import { Repository } from 'typeorm';
-import { Queue } from 'bull';
 import { DocumentsService } from './documents.service';
 import { Document } from './entities/document.entity';
 import { CreateDocumentInput } from './dto/create-document.input';
 import { UpdateDocumentInput } from './dto/update-document.input';
+import { User } from '../users/entities/user.entity';
 
 describe('DocumentsService', () => {
   let service: DocumentsService;
-  let repository: Repository<Document>;
-  let queue: Queue;
 
   const mockDocument: Document = {
     id: '1',
@@ -22,7 +19,7 @@ describe('DocumentsService', () => {
     fileSize: undefined,
     mimeType: undefined,
     userId: 'user1',
-    user: null as any, // Mock user object
+    user: null as User,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -56,8 +53,8 @@ describe('DocumentsService', () => {
     }).compile();
 
     service = module.get<DocumentsService>(DocumentsService);
-    repository = module.get<Repository<Document>>(getRepositoryToken(Document));
-    queue = module.get<Queue>(getQueueToken('document-processing'));
+    // repository = module.get<Repository<Document>>(getRepositoryToken(Document)); // Removed as per edit hint
+    // queue = module.get<Queue>(getQueueToken('document-processing')); // Removed as per edit hint
   });
 
   it('should be defined', () => {

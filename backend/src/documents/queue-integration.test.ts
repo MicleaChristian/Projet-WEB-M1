@@ -199,7 +199,6 @@ describe('Queue Integration Tests (Producer + Consumer)', () => {
   describe('Queue Monitoring', () => {
     it('should track job counts and status', async () => {
       // Arrange
-      const initialWaiting = await queue.getWaiting();
       const initialCompleted = await queue.getCompleted();
 
       // Act
@@ -213,7 +212,6 @@ describe('Queue Integration Tests (Producer + Consumer)', () => {
       await new Promise(resolve => setTimeout(resolve, 200));
 
       // Assert
-      const finalWaiting = await queue.getWaiting();
       const finalCompleted = await queue.getCompleted();
 
       expect(finalCompleted.length).toBeGreaterThan(initialCompleted.length);

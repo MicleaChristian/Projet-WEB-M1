@@ -4,12 +4,13 @@ import { ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { User } from '@prisma/client';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
   let prismaService: PrismaService;
   let authToken: string;
-  let testUser: any;
+  let testUser: User;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({

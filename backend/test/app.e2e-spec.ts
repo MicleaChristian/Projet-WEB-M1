@@ -7,6 +7,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../src/users/entities/user.entity';
 import { Document } from '../src/documents/entities/document.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { testConfig } from './test.config';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -17,7 +19,10 @@ describe('AppController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [
+        TypeOrmModule.forRoot(testConfig),
+        AppModule
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -32,13 +37,15 @@ describe('AppController (e2e)', () => {
 
     await app.init();
 
-    // Clean up database
-    await documentRepository.delete({});
-    await userRepository.delete({});
+    // Clean up database - use proper criteria
+    await documentRepository.createQueryBuilder().delete().execute();
+    await userRepository.createQueryBuilder().delete().execute();
   });
 
   afterEach(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   describe('Health Check', () => {

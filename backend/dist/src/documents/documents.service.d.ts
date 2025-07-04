@@ -1,16 +1,81 @@
-import { Repository } from 'typeorm';
 import { Queue } from 'bull';
-import { Document } from './entities/document.entity';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateDocumentInput } from './dto/create-document.input';
 import { UpdateDocumentInput } from './dto/update-document.input';
 export declare class DocumentsService {
-    private documentsRepository;
+    private prisma;
     private documentQueue;
-    constructor(documentsRepository: Repository<Document>, documentQueue: Queue);
-    create(createDocumentInput: CreateDocumentInput, userId?: string): Promise<Document>;
-    findAll(): Promise<Document[]>;
-    findByUser(userId: string): Promise<Document[]>;
-    findOne(id: string, userId?: string): Promise<Document>;
-    update(id: string, updateDocumentInput: UpdateDocumentInput): Promise<Document>;
-    remove(id: string): Promise<Document>;
+    constructor(prisma: PrismaService, documentQueue: Queue);
+    create(createDocumentInput: CreateDocumentInput, userId?: string): Promise<{
+        title: string;
+        content: string;
+        fileName: string | null;
+        filePath: string | null;
+        fileSize: number | null;
+        mimeType: string | null;
+        userId: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    findAll(): import(".prisma/client").Prisma.PrismaPromise<{
+        title: string;
+        content: string;
+        fileName: string | null;
+        filePath: string | null;
+        fileSize: number | null;
+        mimeType: string | null;
+        userId: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }[]>;
+    findByUser(userId: string): Promise<{
+        title: string;
+        content: string;
+        fileName: string | null;
+        filePath: string | null;
+        fileSize: number | null;
+        mimeType: string | null;
+        userId: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }[]>;
+    findOne(id: string, userId?: string): import(".prisma/client").Prisma.Prisma__DocumentClient<{
+        title: string;
+        content: string;
+        fileName: string | null;
+        filePath: string | null;
+        fileSize: number | null;
+        mimeType: string | null;
+        userId: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }, null, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
+    update(id: string, updateDocumentInput: UpdateDocumentInput): Promise<{
+        title: string;
+        content: string;
+        fileName: string | null;
+        filePath: string | null;
+        fileSize: number | null;
+        mimeType: string | null;
+        userId: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    remove(id: string): Promise<{
+        title: string;
+        content: string;
+        fileName: string | null;
+        filePath: string | null;
+        fileSize: number | null;
+        mimeType: string | null;
+        userId: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
 }

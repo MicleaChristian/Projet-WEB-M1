@@ -1,12 +1,12 @@
-import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID, Context } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { DocumentsService } from './documents.service';
 import { Document } from './entities/document.entity';
 import { CreateDocumentInput } from './dto/create-document.input';
+import { User } from '@prisma/client';
 import { UpdateDocumentInput } from './dto/update-document.input';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity';
 
 @Resolver(() => Document)
 export class DocumentsResolver {
@@ -16,75 +16,47 @@ export class DocumentsResolver {
   @UseGuards(JwtAuthGuard)
   async createDocument(
     @Args('createDocumentInput') createDocumentInput: CreateDocumentInput,
-    @CurrentUser() user: User
+    @CurrentUser() user: User,
   ) {
-    // Override userId with authenticated user's ID
-    const documentData = { ...createDocumentInput, userId: user.id };
-    return this.documentsService.create(documentData);
+    return this.documentsService.create(createDocumentInput, user.id);
   }
 
   @Query(() => [Document], { name: 'documents' })
   @UseGuards(JwtAuthGuard)
-  async findAll(@CurrentUser() user: User) {
-    // Only return documents for the authenticated user
-    return this.documentsService.findByUser(user.id);
+  findAll() {
+    return this.documentsService.findAll();
   }
 
   @Query(() => [Document], { name: 'documentsByUser' })
   @UseGuards(JwtAuthGuard)
-  async findByUser(@CurrentUser() user: User) {
-    // Return documents for the authenticated user
+  findByUser(@CurrentUser() user: User) {
     return this.documentsService.findByUser(user.id);
   }
 
   @Query(() => Document, { name: 'document' })
   @UseGuards(JwtAuthGuard)
-  async findOne(@Args('id', { type: () => ID }) id: string, @CurrentUser() user: User) {
-    const document = await this.documentsService.findOne(id);
-    if (!document) {
-      throw new Error(`Document with ID ${id} not found`);
-    }
-    
-    // Only allow users to see their own documents or admins to see any
-    if (user.role !== 'admin' && document.userId !== user.id) {
-      throw new Error('Unauthorized access to document');
-    }
-    
-    return document;
+  findOne(
+    @Args('id', { type: () => ID }) id: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.documentsService.findOne(id, user.id);
   }
 
   @Mutation(() => Document)
   @UseGuards(JwtAuthGuard)
-  async updateDocument(
+  updateDocument(
     @Args('updateDocumentInput') updateDocumentInput: UpdateDocumentInput,
-    @CurrentUser() user: User
+    @CurrentUser() user: User,
   ) {
-    const document = await this.documentsService.findOne(updateDocumentInput.id);
-    if (!document) {
-      throw new Error(`Document with ID ${updateDocumentInput.id} not found`);
-    }
-    
-    // Only allow users to update their own documents or admins to update any
-    if (user.role !== 'admin' && document.userId !== user.id) {
-      throw new Error('Unauthorized access to document');
-    }
-    
     return this.documentsService.update(updateDocumentInput.id, updateDocumentInput);
   }
 
   @Mutation(() => Document)
   @UseGuards(JwtAuthGuard)
-  async removeDocument(@Args('id', { type: () => ID }) id: string, @CurrentUser() user: User) {
-    const document = await this.documentsService.findOne(id);
-    if (!document) {
-      throw new Error(`Document with ID ${id} not found`);
-    }
-    
-    // Only allow users to delete their own documents or admins to delete any
-    if (user.role !== 'admin' && document.userId !== user.id) {
-      throw new Error('Unauthorized access to document');
-    }
-    
+  removeDocument(
+    @Args('id', { type: () => ID }) id: string,
+    @CurrentUser() user: User,
+  ) {
     return this.documentsService.remove(id);
   }
 } 

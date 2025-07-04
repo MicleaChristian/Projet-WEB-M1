@@ -13,7 +13,7 @@ const apollo_1 = require("@nestjs/apollo");
 const config_module_1 = require("./config/config.module");
 const health_module_1 = require("./health/health.module");
 const bull_1 = require("@nestjs/bull");
-const typeorm_1 = require("@nestjs/typeorm");
+const prisma_module_1 = require("./prisma/prisma.module");
 const documents_module_1 = require("./documents/documents.module");
 const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
@@ -25,21 +25,12 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_module_1.ConfigModule,
+            prisma_module_1.PrismaModule,
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
                 autoSchemaFile: (0, path_1.join)(process.cwd(), 'src/schema.gql'),
                 sortSchema: true,
                 context: ({ req }) => ({ req }),
-            }),
-            typeorm_1.TypeOrmModule.forRoot({
-                type: 'postgres',
-                host: process.env.DATABASE_HOST || 'localhost',
-                port: parseInt(process.env.DATABASE_PORT || '5433'),
-                username: process.env.DATABASE_USERNAME || 'postgres',
-                password: process.env.DATABASE_PASSWORD || 'postgres',
-                database: process.env.DATABASE_NAME || 'document_management',
-                entities: [(0, path_1.join)(__dirname, '**', '*.entity.{ts,js}')],
-                synchronize: true,
             }),
             bull_1.BullModule.forRoot({
                 redis: {

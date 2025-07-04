@@ -8,7 +8,7 @@ export declare class Document {
     fileSize?: number;
     mimeType?: string;
     userId: string;
-    user: User;
+    user?: User;
     createdAt: Date;
     updatedAt: Date;
 }

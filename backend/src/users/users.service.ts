@@ -1,22 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { PrismaService } from '../prisma/prisma.service';
+import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async findByEmail(email: string): Promise<User | undefined> {
-    return this.usersRepository.findOne({ where: { email } });
+    return this.prisma.user.findUnique({ where: { email } });
   }
 
   async findById(id: string): Promise<User | undefined> {
-    return this.usersRepository.findOne({ where: { id } });
+    return this.prisma.user.findUnique({ where: { id } });
   }
 
   async create(userData: {
@@ -27,12 +23,12 @@ export class UsersService {
   }): Promise<User> {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     
-    const user = this.usersRepository.create({
-      ...userData,
-      password: hashedPassword,
+    return this.prisma.user.create({
+      data: {
+        ...userData,
+        password: hashedPassword,
+      },
     });
-    
-    return this.usersRepository.save(user);
   }
 
   async validatePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {

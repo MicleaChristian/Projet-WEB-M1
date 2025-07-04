@@ -11,60 +11,46 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = exports.UserRole = void 0;
 const graphql_1 = require("@nestjs/graphql");
-const typeorm_1 = require("typeorm");
 var UserRole;
 (function (UserRole) {
-    UserRole["ADMIN"] = "admin";
-    UserRole["USER"] = "user";
+    UserRole["ADMIN"] = "ADMIN";
+    UserRole["USER"] = "USER";
 })(UserRole || (exports.UserRole = UserRole = {}));
+(0, graphql_1.registerEnumType)(UserRole, {
+    name: 'UserRole',
+});
 let User = class User {
 };
 exports.User = User;
 __decorate([
     (0, graphql_1.Field)(() => graphql_1.ID),
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
     __metadata("design:type", String)
 ], User.prototype, "id", void 0);
 __decorate([
     (0, graphql_1.Field)(),
-    (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], User.prototype, "password", void 0);
-__decorate([
     (0, graphql_1.Field)(),
-    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], User.prototype, "firstName", void 0);
 __decorate([
     (0, graphql_1.Field)(),
-    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], User.prototype, "lastName", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
-    (0, typeorm_1.Column)({
-        type: 'enum',
-        enum: UserRole,
-        default: UserRole.USER,
-    }),
+    (0, graphql_1.Field)(() => UserRole),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
 __decorate([
     (0, graphql_1.Field)(),
-    (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], User.prototype, "createdAt", void 0);
 __decorate([
     (0, graphql_1.Field)(),
-    (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], User.prototype, "updatedAt", void 0);
 exports.User = User = __decorate([
-    (0, graphql_1.ObjectType)(),
-    (0, typeorm_1.Entity)()
+    (0, graphql_1.ObjectType)()
 ], User);
 //# sourceMappingURL=user.entity.js.map

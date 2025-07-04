@@ -4,7 +4,7 @@ interface DocumentJobData {
     action: 'CREATE' | 'UPDATE' | 'DELETE';
     userId: string;
     timestamp: Date;
-    changes?: any;
+    changes?: Record<string, unknown>;
 }
 export declare class DocumentProcessor {
     private readonly logger;

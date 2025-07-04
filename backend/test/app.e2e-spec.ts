@@ -3,17 +3,13 @@ import { INestApplication } from '@nestjs/common';
 import { ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from '../src/users/entities/user.entity';
-import { Document } from '../src/documents/entities/document.entity';
+import { PrismaService } from '../src/prisma/prisma.service';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
-  let userRepository: Repository<User>;
-  let documentRepository: Repository<Document>;
+  let prismaService: PrismaService;
   let authToken: string;
-  let testUser: User;
+  let testUser: any;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -27,14 +23,13 @@ describe('AppController (e2e)', () => {
       transform: true,
     }));
 
-    userRepository = moduleFixture.get<Repository<User>>(getRepositoryToken(User));
-    documentRepository = moduleFixture.get<Repository<Document>>(getRepositoryToken(Document));
+    prismaService = moduleFixture.get<PrismaService>(PrismaService);
 
     await app.init();
 
-    // Clean up database
-    await documentRepository.delete({});
-    await userRepository.delete({});
+    // Clean up database using Prisma
+    await prismaService.document.deleteMany({});
+    await prismaService.user.deleteMany({});
   });
 
   afterEach(async () => {
@@ -268,7 +263,7 @@ describe('AppController (e2e)', () => {
         .send({
           query: `
             query {
-              documents {
+              documentsByUser {
                 id
                 title
                 content
@@ -279,8 +274,109 @@ describe('AppController (e2e)', () => {
         })
         .expect(200);
 
-      expect(response.body.data.documents).toBeDefined();
-      expect(response.body.data.documents.length).toBeGreaterThan(0);
+      expect(response.body.data.documentsByUser).toBeDefined();
+      expect(response.body.data.documentsByUser.length).toBeGreaterThan(0);
+    });
+
+    it('should update a document', async () => {
+      // Create a document first
+      const createResponse = await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          query: `
+            mutation CreateDocument($createDocumentInput: CreateDocumentInput!) {
+              createDocument(createDocumentInput: $createDocumentInput) {
+                id
+                title
+                content
+              }
+            }
+          `,
+          variables: {
+            createDocumentInput: {
+              title: 'Original Title',
+              content: 'Original content',
+            },
+          },
+        });
+
+      const documentId = createResponse.body.data.createDocument.id;
+
+      // Update the document
+      const updateResponse = await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          query: `
+            mutation UpdateDocument($updateDocumentInput: UpdateDocumentInput!) {
+              updateDocument(updateDocumentInput: $updateDocumentInput) {
+                id
+                title
+                content
+              }
+            }
+          `,
+          variables: {
+            updateDocumentInput: {
+              id: documentId,
+              title: 'Updated Title',
+              content: 'Updated content',
+            },
+          },
+        })
+        .expect(200);
+
+      expect(updateResponse.body.data.updateDocument).toBeDefined();
+      expect(updateResponse.body.data.updateDocument.title).toBe('Updated Title');
+      expect(updateResponse.body.data.updateDocument.content).toBe('Updated content');
+    });
+
+    it('should delete a document', async () => {
+      // Create a document first
+      const createResponse = await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          query: `
+            mutation CreateDocument($createDocumentInput: CreateDocumentInput!) {
+              createDocument(createDocumentInput: $createDocumentInput) {
+                id
+                title
+              }
+            }
+          `,
+          variables: {
+            createDocumentInput: {
+              title: 'Document to Delete',
+              content: 'This will be deleted',
+            },
+          },
+        });
+
+      const documentId = createResponse.body.data.createDocument.id;
+
+      // Delete the document
+      const deleteResponse = await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          query: `
+            mutation RemoveDocument($id: ID!) {
+              removeDocument(id: $id) {
+                id
+                title
+              }
+            }
+          `,
+          variables: {
+            id: documentId,
+          },
+        })
+        .expect(200);
+
+      expect(deleteResponse.body.data.removeDocument).toBeDefined();
+      expect(deleteResponse.body.data.removeDocument.id).toBe(documentId);
     });
 
     it('should require authentication for document operations', async () => {
@@ -289,7 +385,7 @@ describe('AppController (e2e)', () => {
         .send({
           query: `
             query {
-              documents {
+              documentsByUser {
                 id
                 title
               }

@@ -1,8 +1,8 @@
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { PrismaService } from '../prisma/prisma.service';
+import { User } from '@prisma/client';
 export declare class UsersService {
-    private usersRepository;
-    constructor(usersRepository: Repository<User>);
+    private prisma;
+    constructor(prisma: PrismaService);
     findByEmail(email: string): Promise<User | undefined>;
     findById(id: string): Promise<User | undefined>;
     create(userData: {

@@ -5,18 +5,17 @@ const jwt_1 = require("@nestjs/jwt");
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const users_service_1 = require("../users/users.service");
-const user_entity_1 = require("../users/entities/user.entity");
 describe('AuthService', () => {
     let service;
     let usersService;
     let jwtService;
     const mockUser = {
-        id: '1',
+        id: 'user-id',
         email: 'test@example.com',
         password: 'hashedPassword',
         firstName: 'Test',
         lastName: 'User',
-        role: user_entity_1.UserRole.USER,
+        role: 'USER',
         createdAt: new Date(),
         updatedAt: new Date(),
     };
@@ -45,6 +44,7 @@ describe('AuthService', () => {
         service = module.get(auth_service_1.AuthService);
         usersService = module.get(users_service_1.UsersService);
         jwtService = module.get(jwt_1.JwtService);
+        jest.clearAllMocks();
     });
     it('should be defined', () => {
         expect(service).toBeDefined();

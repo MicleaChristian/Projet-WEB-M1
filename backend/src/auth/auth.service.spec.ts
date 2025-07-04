@@ -3,20 +3,20 @@ import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
-import { User, UserRole } from '../users/entities/user.entity';
 
 describe('AuthService', () => {
   let service: AuthService;
   let usersService: UsersService;
   let jwtService: JwtService;
 
-  const mockUser: User = {
-    id: '1',
+  // Mock user from Prisma
+  const mockUser = {
+    id: 'user-id',
     email: 'test@example.com',
     password: 'hashedPassword',
     firstName: 'Test',
     lastName: 'User',
-    role: UserRole.USER,
+    role: 'USER' as const,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -50,10 +50,8 @@ describe('AuthService', () => {
     usersService = module.get<UsersService>(UsersService);
     jwtService = module.get<JwtService>(JwtService);
 
-    // Reset mocks
+    // Reset all mocks
     jest.clearAllMocks();
-    expect(usersService).toBeDefined();
-    expect(jwtService).toBeDefined();
   });
 
   it('should be defined', () => {

@@ -1,7 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { User } from '../users/entities/user.entity';
+import { User as PrismaUser } from '@prisma/client';
+import { User, UserRole } from '../users/entities/user.entity';
 
 export interface JwtPayload {
   sub: string;
@@ -21,11 +22,24 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  private convertPrismaUserToGraphQLUser(prismaUser: PrismaUser): User {
+    return {
+      id: prismaUser.id,
+      email: prismaUser.email,
+      password: prismaUser.password,
+      firstName: prismaUser.firstName,
+      lastName: prismaUser.lastName,
+      role: prismaUser.role as UserRole,
+      createdAt: prismaUser.createdAt,
+      updatedAt: prismaUser.updatedAt,
+    };
+  }
+
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersService.findByEmail(email);
     
     if (user && await this.usersService.validatePassword(password, user.password)) {
-      return user;
+      return this.convertPrismaUserToGraphQLUser(user);
     }
     
     return null;
@@ -62,7 +76,8 @@ export class AuthService {
       throw new UnauthorizedException('User already exists');
     }
 
-    const user = await this.usersService.create(userData);
+    const prismaUser = await this.usersService.create(userData);
+    const user = this.convertPrismaUserToGraphQLUser(prismaUser);
     
     const payload: JwtPayload = {
       sub: user.id,

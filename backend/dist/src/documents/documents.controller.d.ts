@@ -1,12 +1,23 @@
 import { Response } from 'express';
-import { User } from '../users/entities/user.entity';
+import { User } from '@prisma/client';
 import { DocumentsService } from './documents.service';
 export declare class DocumentsController {
     private readonly documentsService;
     constructor(documentsService: DocumentsService);
     uploadFile(file: Express.Multer.File, title: string, content: string, user: User): Promise<{
         message: string;
-        document: import("./entities/document.entity").Document;
+        document: {
+            title: string;
+            content: string;
+            fileName: string | null;
+            filePath: string | null;
+            fileSize: number | null;
+            mimeType: string | null;
+            userId: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+        };
         file: {
             originalName: string;
             filename: string;

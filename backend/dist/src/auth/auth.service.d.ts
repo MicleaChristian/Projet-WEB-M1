@@ -14,6 +14,7 @@ export declare class AuthService {
     private usersService;
     private jwtService;
     constructor(usersService: UsersService, jwtService: JwtService);
+    private convertPrismaUserToGraphQLUser;
     validateUser(email: string, password: string): Promise<User | null>;
     login(email: string, password: string): Promise<AuthResponse>;
     register(userData: {

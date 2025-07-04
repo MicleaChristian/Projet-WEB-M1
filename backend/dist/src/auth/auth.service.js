@@ -18,10 +18,22 @@ let AuthService = class AuthService {
         this.usersService = usersService;
         this.jwtService = jwtService;
     }
+    convertPrismaUserToGraphQLUser(prismaUser) {
+        return {
+            id: prismaUser.id,
+            email: prismaUser.email,
+            password: prismaUser.password,
+            firstName: prismaUser.firstName,
+            lastName: prismaUser.lastName,
+            role: prismaUser.role,
+            createdAt: prismaUser.createdAt,
+            updatedAt: prismaUser.updatedAt,
+        };
+    }
     async validateUser(email, password) {
         const user = await this.usersService.findByEmail(email);
         if (user && await this.usersService.validatePassword(password, user.password)) {
-            return user;
+            return this.convertPrismaUserToGraphQLUser(user);
         }
         return null;
     }
@@ -45,7 +57,8 @@ let AuthService = class AuthService {
         if (existingUser) {
             throw new common_1.UnauthorizedException('User already exists');
         }
-        const user = await this.usersService.create(userData);
+        const prismaUser = await this.usersService.create(userData);
+        const user = this.convertPrismaUserToGraphQLUser(prismaUser);
         const payload = {
             sub: user.id,
             email: user.email,

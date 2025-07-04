@@ -91,8 +91,8 @@ export const CREATE_DOCUMENT_MUTATION = gql`
 `;
 
 export const UPDATE_DOCUMENT_MUTATION = gql`
-  mutation UpdateDocument($id: ID!, $input: UpdateDocumentInput!) {
-    updateDocument(id: $id, updateDocumentInput: $input) {
+  mutation UpdateDocument($input: UpdateDocumentInput!) {
+    updateDocument(updateDocumentInput: $input) {
       id
       title
       content

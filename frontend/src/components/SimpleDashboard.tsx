@@ -116,8 +116,11 @@ const SimpleDashboard: React.FC = () => {
       if (editingDocument) {
         await updateDocument({
           variables: {
-            id: editingDocument.id,
-            input: { title, content },
+            input: { 
+              id: editingDocument.id,
+              title, 
+              content 
+            },
           },
         });
       } else {

@@ -113,17 +113,22 @@ const Dashboard: React.FC = () => {
     }
 
     try {
-      if (editingDocument) {
+      const isEditing = editingDocument && editingDocument.id;
+      
+      if (isEditing) {
         await updateDocument({
           variables: {
-            id: editingDocument.id,
-            input: { title, content },
+            input: { 
+              id: editingDocument.id,
+              title: title.trim(), 
+              content: content.trim()
+            },
           },
         });
       } else {
         await createDocument({
           variables: {
-            input: { title, content },
+            input: { title: title.trim(), content: content.trim() },
           },
         });
       }

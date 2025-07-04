@@ -1,17 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { InjectQueue } from '@nestjs/bull';
-import { Repository } from 'typeorm';
 import { Queue } from 'bull';
-import { Document } from './entities/document.entity';
+import { PrismaService } from '../prisma/prisma.service';
+import { Document } from '@prisma/client';
 import { CreateDocumentInput } from './dto/create-document.input';
 import { UpdateDocumentInput } from './dto/update-document.input';
 
 @Injectable()
 export class DocumentsService {
   constructor(
-    @InjectRepository(Document)
-    private documentsRepository: Repository<Document>,
+    private prisma: PrismaService,
     @InjectQueue('document-processing')
     private documentQueue: Queue,
   ) {}
@@ -22,8 +20,9 @@ export class DocumentsService {
       userId: userId || createDocumentInput.userId,
     };
     
-    const document = this.documentsRepository.create(documentData);
-    const savedDocument = await this.documentsRepository.save(document);
+    const savedDocument = await this.prisma.document.create({
+      data: documentData,
+    });
     
     // Add job to queue for document processing (audit, analytics, etc.)
     await this.documentQueue.add('document-created', {
@@ -37,15 +36,15 @@ export class DocumentsService {
   }
 
   findAll() {
-    return this.documentsRepository.find({
-      order: { createdAt: 'DESC' }
+    return this.prisma.document.findMany({
+      orderBy: { createdAt: 'desc' }
     });
   }
 
   async findByUser(userId: string) {
-    return this.documentsRepository.find({
+    return this.prisma.document.findMany({
       where: { userId },
-      order: { createdAt: 'DESC' }
+      orderBy: { createdAt: 'desc' }
     });
   }
 
@@ -54,7 +53,7 @@ export class DocumentsService {
     if (userId) {
       whereCondition.userId = userId;
     }
-    return this.documentsRepository.findOne({ where: whereCondition });
+    return this.prisma.document.findUnique({ where: whereCondition });
   }
 
   async update(id: string, updateDocumentInput: UpdateDocumentInput) {
@@ -63,8 +62,10 @@ export class DocumentsService {
       throw new Error('Document not found');
     }
 
-    await this.documentsRepository.update(id, updateDocumentInput);
-    const updatedDocument = await this.findOne(id);
+    const updatedDocument = await this.prisma.document.update({
+      where: { id },
+      data: updateDocumentInput,
+    });
     
     // Add job to queue for document update processing
     await this.documentQueue.add('document-updated', {
@@ -84,7 +85,9 @@ export class DocumentsService {
       throw new Error('Document not found');
     }
     
-    await this.documentsRepository.delete(id);
+    const deletedDocument = await this.prisma.document.delete({
+      where: { id },
+    });
     
     // Add job to queue for document deletion processing
     await this.documentQueue.add('document-deleted', {
@@ -94,6 +97,6 @@ export class DocumentsService {
       timestamp: new Date(),
     });
     
-    return document;
+    return deletedDocument;
   }
 } 

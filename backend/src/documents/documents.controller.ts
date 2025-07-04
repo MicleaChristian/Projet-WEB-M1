@@ -16,7 +16,7 @@ import { extname, join } from 'path';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity';
+import { User } from '@prisma/client';
 import { DocumentsService } from './documents.service';
 import { existsSync } from 'fs';
 
@@ -106,7 +106,8 @@ export class DocumentsController {
       throw new NotFoundException('File not found');
     }
 
-    const filePath = join(process.cwd(), document.filePath);
+    // Use the stored filePath directly (it's already absolute from multer)
+    const filePath = document.filePath;
     
     if (!existsSync(filePath)) {
       throw new NotFoundException('File not found on disk');

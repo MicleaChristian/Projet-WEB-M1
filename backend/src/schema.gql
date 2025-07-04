@@ -32,6 +32,7 @@ type Document {
   mimeType: String
   title: String!
   updatedAt: DateTime!
+  user: User
   userId: ID!
 }
 
@@ -74,6 +75,11 @@ type User {
   firstName: String!
   id: ID!
   lastName: String!
-  role: String!
+  role: UserRole!
   updatedAt: DateTime!
+}
+
+enum UserRole {
+  ADMIN
+  USER
 }

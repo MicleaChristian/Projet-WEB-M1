@@ -18,19 +18,19 @@ let DocumentProcessor = DocumentProcessor_1 = class DocumentProcessor {
         this.logger = new common_1.Logger(DocumentProcessor_1.name);
     }
     async handleDocumentCreated(job) {
-        const { documentId, userId, timestamp } = job.data;
+        const { documentId, userId } = job.data;
         this.logger.log(`Processing document creation: ${documentId} by user ${userId}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         this.logger.log(`Document creation processed successfully: ${documentId}`);
     }
     async handleDocumentUpdated(job) {
-        const { documentId, userId, changes, timestamp } = job.data;
+        const { documentId, userId } = job.data;
         this.logger.log(`Processing document update: ${documentId} by user ${userId}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         this.logger.log(`Document update processed successfully: ${documentId}`);
     }
     async handleDocumentDeleted(job) {
-        const { documentId, userId, timestamp } = job.data;
+        const { documentId, userId } = job.data;
         this.logger.log(`Processing document deletion: ${documentId} by user ${userId}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         this.logger.log(`Document deletion processed successfully: ${documentId}`);

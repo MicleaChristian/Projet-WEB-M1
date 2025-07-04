@@ -19,7 +19,6 @@ const multer_1 = require("multer");
 const path_1 = require("path");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
-const user_entity_1 = require("../users/entities/user.entity");
 const documents_service_1 = require("./documents.service");
 const fs_1 = require("fs");
 let DocumentsController = class DocumentsController {
@@ -64,7 +63,7 @@ let DocumentsController = class DocumentsController {
         if (!document || !document.filePath) {
             throw new common_1.NotFoundException('File not found');
         }
-        const filePath = (0, path_1.join)(process.cwd(), document.filePath);
+        const filePath = document.filePath;
         if (!(0, fs_1.existsSync)(filePath)) {
             throw new common_1.NotFoundException('File not found on disk');
         }
@@ -100,7 +99,7 @@ __decorate([
     __param(2, (0, common_1.Body)('content')),
     __param(3, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, user_entity_1.User]),
+    __metadata("design:paramtypes", [Object, String, String, Object]),
     __metadata("design:returntype", Promise)
 ], DocumentsController.prototype, "uploadFile", null);
 __decorate([
@@ -116,7 +115,7 @@ __decorate([
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __param(2, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, user_entity_1.User, Object]),
+    __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", Promise)
 ], DocumentsController.prototype, "downloadFile", null);
 exports.DocumentsController = DocumentsController = __decorate([

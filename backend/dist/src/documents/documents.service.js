@@ -14,13 +14,11 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DocumentsService = void 0;
 const common_1 = require("@nestjs/common");
-const typeorm_1 = require("@nestjs/typeorm");
 const bull_1 = require("@nestjs/bull");
-const typeorm_2 = require("typeorm");
-const document_entity_1 = require("./entities/document.entity");
+const prisma_service_1 = require("../prisma/prisma.service");
 let DocumentsService = class DocumentsService {
-    constructor(documentsRepository, documentQueue) {
-        this.documentsRepository = documentsRepository;
+    constructor(prisma, documentQueue) {
+        this.prisma = prisma;
         this.documentQueue = documentQueue;
     }
     async create(createDocumentInput, userId) {
@@ -28,8 +26,9 @@ let DocumentsService = class DocumentsService {
             ...createDocumentInput,
             userId: userId || createDocumentInput.userId,
         };
-        const document = this.documentsRepository.create(documentData);
-        const savedDocument = await this.documentsRepository.save(document);
+        const savedDocument = await this.prisma.document.create({
+            data: documentData,
+        });
         await this.documentQueue.add('document-created', {
             documentId: savedDocument.id,
             action: 'CREATE',
@@ -39,14 +38,14 @@ let DocumentsService = class DocumentsService {
         return savedDocument;
     }
     findAll() {
-        return this.documentsRepository.find({
-            order: { createdAt: 'DESC' }
+        return this.prisma.document.findMany({
+            orderBy: { createdAt: 'desc' }
         });
     }
     async findByUser(userId) {
-        return this.documentsRepository.find({
+        return this.prisma.document.findMany({
             where: { userId },
-            order: { createdAt: 'DESC' }
+            orderBy: { createdAt: 'desc' }
         });
     }
     findOne(id, userId) {
@@ -54,15 +53,17 @@ let DocumentsService = class DocumentsService {
         if (userId) {
             whereCondition.userId = userId;
         }
-        return this.documentsRepository.findOne({ where: whereCondition });
+        return this.prisma.document.findUnique({ where: whereCondition });
     }
     async update(id, updateDocumentInput) {
         const existingDocument = await this.findOne(id);
         if (!existingDocument) {
             throw new Error('Document not found');
         }
-        await this.documentsRepository.update(id, updateDocumentInput);
-        const updatedDocument = await this.findOne(id);
+        const updatedDocument = await this.prisma.document.update({
+            where: { id },
+            data: updateDocumentInput,
+        });
         await this.documentQueue.add('document-updated', {
             documentId: id,
             action: 'UPDATE',
@@ -77,21 +78,22 @@ let DocumentsService = class DocumentsService {
         if (!document) {
             throw new Error('Document not found');
         }
-        await this.documentsRepository.delete(id);
+        const deletedDocument = await this.prisma.document.delete({
+            where: { id },
+        });
         await this.documentQueue.add('document-deleted', {
             documentId: id,
             action: 'DELETE',
             userId: document.userId,
             timestamp: new Date(),
         });
-        return document;
+        return deletedDocument;
     }
 };
 exports.DocumentsService = DocumentsService;
 exports.DocumentsService = DocumentsService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(document_entity_1.Document)),
     __param(1, (0, bull_1.InjectQueue)('document-processing')),
-    __metadata("design:paramtypes", [typeorm_2.Repository, Object])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService, Object])
 ], DocumentsService);
 //# sourceMappingURL=documents.service.js.map

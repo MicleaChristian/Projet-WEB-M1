@@ -1,46 +1,38 @@
-import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
 
 export enum UserRole {
-  ADMIN = 'admin',
-  USER = 'user',
+  ADMIN = 'ADMIN',
+  USER = 'USER',
 }
 
+// Register the enum for GraphQL
+registerEnumType(UserRole, {
+  name: 'UserRole',
+});
+
 @ObjectType()
-@Entity()
 export class User {
   @Field(() => ID)
-  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Field()
-  @Column({ unique: true })
   email: string;
 
-  @Column()
-  password: string; // Not exposed in GraphQL
+  // password is not exposed in GraphQL for security
+  password: string;
 
   @Field()
-  @Column()
   firstName: string;
 
   @Field()
-  @Column()
   lastName: string;
 
-  @Field()
-  @Column({
-    type: 'enum',
-    enum: UserRole,
-    default: UserRole.USER,
-  })
+  @Field(() => UserRole)
   role: UserRole;
 
   @Field()
-  @CreateDateColumn()
   createdAt: Date;
 
   @Field()
-  @UpdateDateColumn()
   updatedAt: Date;
 } 

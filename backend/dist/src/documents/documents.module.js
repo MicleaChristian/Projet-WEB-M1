@@ -8,13 +8,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DocumentsModule = void 0;
 const common_1 = require("@nestjs/common");
-const typeorm_1 = require("@nestjs/typeorm");
 const bull_1 = require("@nestjs/bull");
 const platform_express_1 = require("@nestjs/platform-express");
 const documents_service_1 = require("./documents.service");
 const documents_resolver_1 = require("./documents.resolver");
 const documents_controller_1 = require("./documents.controller");
-const document_entity_1 = require("./entities/document.entity");
 const document_processor_1 = require("./document.processor");
 let DocumentsModule = class DocumentsModule {
 };
@@ -22,7 +20,6 @@ exports.DocumentsModule = DocumentsModule;
 exports.DocumentsModule = DocumentsModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([document_entity_1.Document]),
             bull_1.BullModule.registerQueue({
                 name: 'document-processing',
             }),

@@ -28,7 +28,7 @@ import { join } from "path";
       database: process.env.DATABASE_NAME || "document_management",
       entities: [join(__dirname, "**", "*.entity.{ts,js}")],
       synchronize: true, // Set to false in production
-      ssl: {
+      ssl: process.env.TYPEORM_SSL === 'false' ? false : {
         rejectUnauthorized: false,
       },
     }),

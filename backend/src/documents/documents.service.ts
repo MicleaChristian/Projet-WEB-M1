@@ -50,7 +50,7 @@ export class DocumentsService {
   }
 
   findOne(id: string, userId?: string) {
-    const whereCondition: any = { id };
+    const whereCondition: { id: string; userId?: string } = { id };
     if (userId) {
       whereCondition.userId = userId;
     }

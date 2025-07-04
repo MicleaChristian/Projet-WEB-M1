@@ -59,11 +59,11 @@ jobs:
       working-directory: ./backend
       run: npm run test:cov
       env:
-        DATABASE_HOST: localhost
+        DATABASE_HOST: dpg-d1j7uh7diees73cou1l0-a.oregon-postgres.render.com
         DATABASE_PORT: 5432
-        DATABASE_USERNAME: postgres
-        DATABASE_PASSWORD: postgres
-        DATABASE_NAME: document_management_test
+        DATABASE_USERNAME: admin
+        DATABASE_PASSWORD: b0OJ8wQRt2zpAWVsSWFcrZZgSOwZflWC
+        DATABASE_NAME: document_management_g47f
         REDIS_HOST: localhost
         REDIS_PORT: 6379
         JWT_SECRET: test-secret-key
@@ -72,11 +72,11 @@ jobs:
       working-directory: ./backend
       run: npm run test:e2e
       env:
-        DATABASE_HOST: localhost
+        DATABASE_HOST: dpg-d1j7uh7diees73cou1l0-a.oregon-postgres.render.com
         DATABASE_PORT: 5432
-        DATABASE_USERNAME: postgres
-        DATABASE_PASSWORD: postgres
-        DATABASE_NAME: document_management_test
+        DATABASE_USERNAME: admin
+        DATABASE_PASSWORD: b0OJ8wQRt2zpAWVsSWFcrZZgSOwZflWC
+        DATABASE_NAME: document_management_g47f
         REDIS_HOST: localhost
         REDIS_PORT: 6379
         JWT_SECRET: test-secret-key
@@ -172,11 +172,11 @@ jobs:
     - name: Test Docker image
       run: |
         docker run --rm --name test-container -d \
-          -e DATABASE_HOST=host.docker.internal \
+          -e DATABASE_HOST=dpg-d1j7uh7diees73cou1l0-a.oregon-postgres.render.com \
           -e DATABASE_PORT=5432 \
-          -e DATABASE_USERNAME=postgres \
-          -e DATABASE_PASSWORD=postgres \
-          -e DATABASE_NAME=document_management \
+          -e DATABASE_USERNAME=admin \
+          -e DATABASE_PASSWORD=b0OJ8wQRt2zpAWVsSWFcrZZgSOwZflWC \
+          -e DATABASE_NAME=document_management_g47f \
           -e REDIS_HOST=host.docker.internal \
           -e REDIS_PORT=6379 \
           -p 4000:4000 \

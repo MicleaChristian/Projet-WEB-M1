@@ -2,7 +2,6 @@ import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/commo
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { PrismaService } from '../prisma/prisma.service';
-import { Document } from '@prisma/client';
 import { CreateDocumentInput } from './dto/create-document.input';
 import { UpdateDocumentInput } from './dto/update-document.input';
 

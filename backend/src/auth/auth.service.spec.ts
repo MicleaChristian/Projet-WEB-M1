@@ -6,8 +6,6 @@ import { UsersService } from '../users/users.service';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let usersService: UsersService;
-  let jwtService: JwtService;
 
   // Mock user from Prisma
   const mockUser = {
@@ -47,8 +45,8 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    usersService = module.get<UsersService>(UsersService);
-    jwtService = module.get<JwtService>(JwtService);
+    // usersService = module.get<UsersService>(UsersService); // Removed unused variable
+    // jwtService = module.get<JwtService>(JwtService); // Removed unused variable
 
     // Reset all mocks
     jest.clearAllMocks();

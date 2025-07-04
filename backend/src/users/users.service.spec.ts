@@ -9,7 +9,6 @@ const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
 
 describe('UsersService', () => {
   let service: UsersService;
-  let prismaService: PrismaService;
 
   const mockUser = {
     id: 'user-id',
@@ -44,7 +43,6 @@ describe('UsersService', () => {
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    prismaService = module.get<PrismaService>(PrismaService);
 
     // Reset all mocks
     jest.clearAllMocks();
